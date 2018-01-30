@@ -63,3 +63,25 @@ create table EDItoATC_EXT
 CREATE TABLE MAP_ICD_SNOMED AS (
     SELECT CONCEPT_ID_1_CONCEPT_CODE, CONCEPT_ID_2_CONCEPT_CODE
     FROM ICDTOSNOMED);	
+			 
+			 
+select --+parallel(8)
+* from NHIS.NHIS_20T
+where RECU_FR_DT NOT BETWEEN '19000101' and '99991231';
+
+select * from NHIS.NHIS_JK
+where DTH_CODE1 is not null;
+
+select --+parallel(8)
+      nvl(length(translate(person_id,'+.0123456789','')),0) 
+from NHIS.NHIS_20T
+where nvl(length(translate(person_id,'+.0123456789','')),0)!=0;
+
+recu_fr_dt
+
+select --+parallel(8)
+     *
+from NHIS.NHIS_20T
+where nvl(length(translate(recu_fr_dt,'+.0123456789','')),0)!=0;
+
+select to_date('99991231','YYYYMMDD') from dual;			 
