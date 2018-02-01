@@ -1,24 +1,34 @@
-truncate table condition_occurrence;
+
+DESC condition_occurrence;
+
+SELECT * FROM USER_CONSTRAINTS WHERE TABLE_NAME = 'CONDITION_OCCURRENCE_TMP' ;
+
+CREATE TABLE condition_occurrence_TMP
+AS SELECT * FROM CONDITION_OCCURRENCE
+WHERE 1=2;
+
+ALTER TABLE CONDITION_OCCURRENCE_TMP DROP CONSTRAINT SYS_C0011787;
 
 
-insert /*+append*/ into condition_occurrence(
-	condition_occurrence_id, person_id, condition_concept_id, condition_start_date, condition_end_date, 
-	condition_type_concept_id, stop_reason, provider_id, visit_occurrence_id, condition_source_value, condition_source_concept_id
+insert /*+append*/ into condition_occurrence_TMP(
+	condition_occurrence_id,
+    person_id, 
+    condition_concept_id,
+    condition_start_date, 
+    condition_end_date, 
+	condition_type_concept_id,
+    visit_occurrence_id, 
+    condition_source_value 
 	)    
 select 
-	--convert(bigint, convert(varchar, m.master_seq) + convert(varchar, ROW_NUMBER() OVER(partition BY key_seq, seq_no order by concept_id desc))) as condition_occurrence_id,
-	--ROW_NUMBER() OVER(partition BY key_seq, seq_no order by concept_id desc) AS rank, m.seq_no,    
 	ROWNUM condition_occurrence_id,
 	m.person_id as person_id,
 	n.SNOMED_CODE as condition_concept_id,
 	TO_DATE(m.recu_fr_dt, 'YYYYMMDD') as condition_start_date,
 	m.visit_end_date as condition_end_date,
 	m.sick_order as condition_type_concept_id,
-	null as stop_reason,
-	null as provider_id,
 	m.visit_occurrence_id,
-	m.sick_sym as condition_source_value,
-	null as condition_source_concept_id 
+	m.sick_sym as condition_source_value
 from (
 	select
 		--a.master_seq, a.person_id, a.key_seq, a.seq_no,
@@ -30,58 +40,22 @@ from (
 			else TO_DATE(b.recu_fr_dt, 'YYYYMMDD')
 		end as visit_end_date,
 		c.sick_sym,
-		case when c.sick_sym=b.main_sick then '44786627' --primary condition
-			when c.sick_sym=b.sub_sick then '44786629' --secondary condition
-			else '45756845' --third condition
-		end as sick_order,
-		case when b.sub_sick=c.sick_sym then 'Y' else 'N' end as sub_sick_yn
+		case when c.sick_sym=b.main_sick then 44786627 --primary condition
+			when c.sick_sym=b.sub_sick then 44786629 --secondary condition
+			else 45756845 --third condition
+		end as sick_order
+		--case when b.sub_sick=c.sick_sym then 'Y' else 'N' end as sub_sick_yn
 	from NHIS.NHIS_20T b, NHIS.NHIS_40T c
---		observation_period d --ì¶”ê°€
+--		observation_period d --Ãß°¡
 	where b.key_seq=c.key_seq	
 --	and TO_DATE(c.recu_fr_dt, 'YYYYMMDD') between d.observation_period_start_date and d.observation_period_end_date
-	)  m, --ì¶”ê°€
+	)  m, --Ãß°¡
 	 TS_MAP_ICD2SNOMED n
-where m.sick_sym=n.SNOMED_CODE	
+where m.sick_sym=n.ICD_CODE	
 ;
 
-commit;
+COMMIT;
 
+create table CONDITION_OCCURRENCE as select * from CONDITION_OCCURRENCE_TMP;
 
--- MAPPING TABLE ATC TO RXNORM 
-CREATE TABLE MAP_ATC_RXNORM AS (
-    SELECT CONCEPT_ID_1_CONCEPT_CODE, CONCEPT_ID_2_CONCEPT_CODE
-    FROM ATCTORXNORM);
-	
-
-EDItoATC
-create table EDItoATC_EXT
-			(PRODUCT_CODE VARCHAR2(20)
-			 ,ATC_CODE VARCHAR2(20)
-			 
-			 
--- MAPPING TABLE ICD TO SNOMED
-CREATE TABLE MAP_ICD_SNOMED AS (
-    SELECT CONCEPT_ID_1_CONCEPT_CODE, CONCEPT_ID_2_CONCEPT_CODE
-    FROM ICDTOSNOMED);	
-			 
-			 
-select --+parallel(8)
-* from NHIS.NHIS_20T
-where RECU_FR_DT NOT BETWEEN '19000101' and '99991231';
-
-select * from NHIS.NHIS_JK
-where DTH_CODE1 is not null;
-
-select --+parallel(8)
-      nvl(length(translate(person_id,'+.0123456789','')),0) 
-from NHIS.NHIS_20T
-where nvl(length(translate(person_id,'+.0123456789','')),0)!=0;
-
-recu_fr_dt
-
-select --+parallel(8)
-     *
-from NHIS.NHIS_20T
-where nvl(length(translate(recu_fr_dt,'+.0123456789','')),0)!=0;
-
-select to_date('99991231','YYYYMMDD') from dual;			 
+select * from CONDITION_OCCURRENCE WHERE ROWNUM<100;
