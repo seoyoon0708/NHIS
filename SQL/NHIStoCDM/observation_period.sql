@@ -1,35 +1,26 @@
-/**************************************
- 1. ë°ì´í„° ì…ë ¥
-    1) ê´€ì¸¡ì‹œì‘ì¼: ìê²©ë…„ë„.01.01ì´ ë””í´íŠ¸. ì¶œìƒë…„ë„ê°€ ê·¸ ì´ì „ì´ë©´ ì¶œìƒë…„ë„.01.01
-	2) ê´€ì¸¡ì¢…ë£Œì¼: ìê²©ë…„ë„.12.31ì´ ë””í´íŠ¸. ì‚¬ë§ë…„ì›”ì´ ê·¸ ì´í›„ë©´ ì‚¬ë§ë…„.ì›”.ë§ˆì§€ë§‰ë‚ 
-	3) ì‚¬ë§ ì´í›„ ê°€ì§€ëŠ” ìê²© ì œì™¸
-***************************************/ 
-
-
--- step 1
 create table observation_period_temp1
 as
 select
       a.person_id as person_id, 
       case when a.stnd_y >= b.year_of_birth then TO_DATE(a.stnd_y||'0101','YYYYMMDD')--convert(date, convert(varchar, a.stnd_y) + '0101', 112) 
             else TO_DATE(b.year_of_birth||'0101','YYYYMMDD') --convert(date, convert(varchar, b.year_of_birth) + '0101', 112) 
-      end as observation_period_start_date, --ê´€ì¸¡ì‹œì‘ì¼
+      end as observation_period_start_date, --°üÃø½ÃÀÛÀÏ
       case when TO_DATE(a.stnd_y||'1231','YYYYMMDD')> c.death_date then c.death_date --convert(date, a.stnd_y + '1231', 112) > c.death_date then c.death_date
             else TO_DATE(a.stnd_y||'1231','YYYYMMDD') --convert(date, a.stnd_y + '1231', 112)
-      end as observation_period_end_date --ê´€ì¸¡ì¢…ë£Œì¼
+      end as observation_period_end_date --°üÃøÁ¾·áÀÏ
 from NHIS.NHIS_JK a,
       CDM_ONE_MIL.person b left join CDM_ONE_MIL.death c
       on b.person_id=c.person_id
 where a.person_id=b.person_id;
---(12132633ê°œ í–‰ì´ ì˜í–¥ì„ ë°›ìŒ), 00:05
+--(12132633°³ ÇàÀÌ ¿µÇâÀ» ¹ŞÀ½), 00:05
 
 -- step 2
 create table observation_period_temp2
 as
-select *, row_number() over(partition by person_id order by observation_period_start_date, observation_period_end_date) AS id
-from observation_period_temp1
-where observation_period_start_date < observation_period_end_date -- ì‚¬ë§ ì´í›„ ê°€ì§€ëŠ” ìê²©ì„ ì œì™¸ì‹œí‚¤ëŠ” ì¿¼ë¦¬
---(12132529ê°œ í–‰ì´ ì˜í–¥ì„ ë°›ìŒ), 00:08
+select a.*, row_number() over(partition by person_id order by observation_period_start_date, observation_period_end_date) AS id
+from observation_period_temp1 a
+where observation_period_start_date < observation_period_end_date -- »ç¸Á ÀÌÈÄ °¡Áö´Â ÀÚ°İÀ» Á¦¿Ü½ÃÅ°´Â Äõ¸®
+--(12132529°³ ÇàÀÌ ¿µÇâÀ» ¹ŞÀ½), 00:08
 ;
 
 
@@ -38,14 +29,14 @@ where observation_period_start_date < observation_period_end_date -- ì‚¬ë§ ì´í
 create table observation_period_temp3
 as
 select 
-	a.*, datediff(day, a.observation_period_end_date, b.observation_period_start_date) as days	
+	a.*, a.observation_period_end_date-b.observation_period_start_date as days--datediff(day, a.observation_period_end_date, b.observation_period_start_date) as days	
 	from observation_period_temp2 a
 		left join
 		observation_period_temp2 b
 		on a.person_id = b.person_id and a.id=b.id-1
 		--	and a.id = cast(b.id as int)-1
-	order by person_id, id
---(12132529ê°œ í–‰ì´ ì˜í–¥ì„ ë°›ìŒ), 00:15
+	order by a.person_id, a.id;
+--(12132529°³ ÇàÀÌ ¿µÇâÀ» ¹ŞÀ½), 00:15
 
 -- step 4
 create table observation_period_temp4
@@ -56,21 +47,30 @@ select
    END AS sumday
    from observation_period_temp3 a
    order by person_id, id;
---(12132529ê°œ í–‰ì´ ì˜í–¥ì„ ë°›ìŒ), 00:12
+--(12132529°³ ÇàÀÌ ¿µÇâÀ» ¹ŞÀ½), 00:12
 
+truncate table observation_period;
 
 -- step 5
-INSERT INTO CDM_ONE_MIL.OBSERVATION_PERIOD
-select rownum as observation_period_id, --identity(int, 1, 1) as observation_period_id,
+select * from observation_period_temp4;
+
+create table obervation_period_temp5
+as
+select --rownum as observation_period_id, --identity(int, 1, 1) as observation_period_id,
 	person_id,
 	min(observation_period_start_date) as observation_period_start_date,
 	max(observation_period_end_date) as observation_period_end_date,
 	44814725 as PERIOD_TYPE_CONCEPT_ID
 from observation_period_temp4
 group by person_id, sumday
-order by person_id, observation_period_start_date
+order by person_id, observation_period_start_date;
+
+INSERT /*+append*/ INTO CDM_ONE_MIL.OBSERVATION_PERIOD
+select rownum as observation_period_id,
+       x.*
+ from obervation_period_temp5 x
 ;
 
---(1256091ê°œ í–‰ì´ ì˜í–¥ì„ ë°›ìŒ), 00:10
+commit;
 
-drop table #observation_period_temp1, #observation_period_temp2, #observation_period_temp3, #observation_period_temp4
+select * from CDM_ONE_MIL.OBSERVATION_PERIOD;
