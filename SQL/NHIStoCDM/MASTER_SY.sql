@@ -165,7 +165,7 @@ parallel 8
 nologging
 pctfree 0
 as
-select 3000000000+rownum person_id, t.*
+select 3000000000+rownum drug_exposure_id, t.*
 from (
 	SELECT * FROM NHID_GY30_T1_2002 UNION ALL
 	SELECT * FROM NHID_GY30_T1_2003 UNION ALL
@@ -268,7 +268,7 @@ parallel 8
 nologging
 pctfree 0
 as
-select 6000000000+rownum person_id, s.*
+select 6000000000+rownum drug_exposure_id, s.*
 from (
 	SELECT * FROM NHID_GY60_T1_2002 UNION ALL
 	SELECT * FROM NHID_GY60_T1_2003 UNION ALL
