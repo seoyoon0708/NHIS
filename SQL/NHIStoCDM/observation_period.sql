@@ -1,26 +1,33 @@
+
+
+
+
+/*ì•„ì£¼ëŒ€ MSSQLë²„ì „ì„ ì˜¤ë¼í´ë²„ì „ìœ¼ë¡œ ë‹¨ìˆœì»¨ë²„ì „
+
+
 create table observation_period_temp1
 as
 select
       a.person_id as person_id, 
       case when a.stnd_y >= b.year_of_birth then TO_DATE(a.stnd_y||'0101','YYYYMMDD')--convert(date, convert(varchar, a.stnd_y) + '0101', 112) 
             else TO_DATE(b.year_of_birth||'0101','YYYYMMDD') --convert(date, convert(varchar, b.year_of_birth) + '0101', 112) 
-      end as observation_period_start_date, --°üÃø½ÃÀÛÀÏ
+      end as observation_period_start_date, --ê´€ì¸¡ì‹œì‘ì¼
       case when TO_DATE(a.stnd_y||'1231','YYYYMMDD')> c.death_date then c.death_date --convert(date, a.stnd_y + '1231', 112) > c.death_date then c.death_date
             else TO_DATE(a.stnd_y||'1231','YYYYMMDD') --convert(date, a.stnd_y + '1231', 112)
-      end as observation_period_end_date --°üÃøÁ¾·áÀÏ
+      end as observation_period_end_date --ê´€ì¸¡ì¢…ë£Œì¼
 from NHIS.NHIS_JK a,
       CDM_ONE_MIL.person b left join CDM_ONE_MIL.death c
       on b.person_id=c.person_id
 where a.person_id=b.person_id;
---(12132633°³ ÇàÀÌ ¿µÇâÀ» ¹ŞÀ½), 00:05
+--(12132633ê°œ í–‰ì´ ì˜í–¥ì„ ë°›ìŒ), 00:05
 
 -- step 2
 create table observation_period_temp2
 as
 select a.*, row_number() over(partition by person_id order by observation_period_start_date, observation_period_end_date) AS id
 from observation_period_temp1 a
-where observation_period_start_date < observation_period_end_date -- »ç¸Á ÀÌÈÄ °¡Áö´Â ÀÚ°İÀ» Á¦¿Ü½ÃÅ°´Â Äõ¸®
---(12132529°³ ÇàÀÌ ¿µÇâÀ» ¹ŞÀ½), 00:08
+where observation_period_start_date < observation_period_end_date -- ì‚¬ë§ ì´í›„ ê°€ì§€ëŠ” ìê²©ì„ ì œì™¸ì‹œí‚¤ëŠ” ì¿¼ë¦¬
+--(12132529ê°œ í–‰ì´ ì˜í–¥ì„ ë°›ìŒ), 00:08
 ;
 
 
@@ -36,7 +43,7 @@ select
 		on a.person_id = b.person_id and a.id=b.id-1
 		--	and a.id = cast(b.id as int)-1
 	order by a.person_id, a.id;
---(12132529°³ ÇàÀÌ ¿µÇâÀ» ¹ŞÀ½), 00:15
+--(12132529ê°œ í–‰ì´ ì˜í–¥ì„ ë°›ìŒ), 00:15
 
 -- step 4
 create table observation_period_temp4
@@ -47,7 +54,7 @@ select
    END AS sumday
    from observation_period_temp3 a
    order by person_id, id;
---(12132529°³ ÇàÀÌ ¿µÇâÀ» ¹ŞÀ½), 00:12
+--(12132529ê°œ í–‰ì´ ì˜í–¥ì„ ë°›ìŒ), 00:12
 
 truncate table observation_period;
 
