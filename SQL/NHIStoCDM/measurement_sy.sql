@@ -98,7 +98,7 @@ from (
 ALTER TABLE NHIS.NHIS_GJ RENAME COLUMN VISIT_OCCURRENCE_ID TO MASTER_SEQ;
 
 /**************************************																																							   
- 1. ÇàÀ» ¿­·Î ÀüÈ¯
+ 1. í–‰ì„ ì—´ë¡œ ì „í™˜
 ***************************************/ 
 CREATE TABLE NHIS.GJ_VERTICAL
 parallel 8
@@ -107,7 +107,7 @@ pctfree 0
 as
 SELECT p.master_seq, p.hchk_year, p.person_id, p.ykiho_gubun_cd, p.meas_type, p.meas_value 
 FROM NHIS.NHIS_GJ 
-unpivot (meas_value for meas_type in ( -- 47 °ËÁø Ç×¸ñ
+unpivot (meas_value for meas_type in ( -- 47 ê²€ì§„ í•­ëª©
 	height, weight, waist, bp_high, bp_lwst,
 	blds, tot_chole, triglyceride, hdl_chole, ldl_chole,
 	hmg, gly_cd, olig_occu_cd, olig_ph, olig_prote_cd,
@@ -122,7 +122,7 @@ unpivot (meas_value for meas_type in ( -- 47 °ËÁø Ç×¸ñ
 
 
 /**************************************
- 2. ¼öÄ¡Çü µ¥ÀÌÅÍ ÀÔ·Â  
+ 2. ìˆ˜ì¹˜í˜• ë°ì´í„° ìž…ë ¥  
 ***************************************/ 
 INSERT INTO CDM_ONE_MIL.MEASUREMENT (measurement_id, person_id, measurement_concept_id, measurement_date, measurement_datetime, measurement_type_concept_id, operator_concept_id, value_as_number, value_as_concept_id,			
 											unit_concept_id, range_low, range_high, provider_id, visit_occurrence_id, measurement_source_value, measurement_source_concept_id, unit_source_value, value_source_value)
@@ -172,13 +172,45 @@ INSERT INTO CDM_ONE_MIL.MEASUREMENT (measurement_id, person_id, measurement_conc
 ;
 
 
-select * from (select master_seq, hchk_year, person_id, ykiho_gubun_cd, meas_type, meas_value 			
+/**************************************
+ 2. ì½”ë“œí˜• ë°ì´í„° ìž…ë ¥  
+***************************************/ 
+INSERT INTO CDM_ONE_MIL.MEASUREMENT (measurement_id, person_id, measurement_concept_id, measurement_date, measurement_datetime, measurement_type_concept_id, operator_concept_id, value_as_number, value_as_concept_id,			
+											unit_concept_id, range_low, range_high, provider_id, visit_occurrence_id, measurement_source_value, measurement_source_concept_id, unit_source_value, value_source_value)
+
+
+	select	case	when a.meas_type = 'GLY_CD' then cast(concat(a.master_seq, b.id_value) as INTEGER)
+					when a.meas_type = 'OLIG_OCCU_CD' then cast(concat(a.master_seq, b.id_value) as INTEGER)
+					when a.meas_type = 'OLIG_PROTE_CD' then cast(concat(a.master_seq, b.id_value) as INTEGER)
+					end as measurement_id,
+			a.person_id as person_id,
+			b.measurement_concept_id as measurement_concept_id,
+			to_date(a.hchk_year||'0101','yyyy-mm-dd') as measurement_date,
+			null as measurement_datetime,
+			b.measurement_type_concept_id as measurement_type_concept_id,
+			null as operator_concept_id,
+			b.value_as_number as value_as_number,
+			b.value_as_concept_id as value_as_concept_id,
+			b.measurement_unit_concept_id as unit_concept_id ,
+			null as range_low,
+            null as range_high,
+			null as provider_id ,
+			a.master_seq as visit_occurrence_id,
+			a.meas_value as measurement_source_value,
+			null as measurement_source_concept_id,
+			null as unit_source_value,
+			a.meas_value as value_source_value
+
+	from (select master_seq, hchk_year, person_id, ykiho_gubun_cd, meas_type, meas_value 			
 			from NHIS.GJ_VERTICAL) a
-		JOIN measurement_mapping b             
-        on nvl(a.meas_type,'') = nvl(b.meas_type,'')
+		JOIN measurement_mapping b 
+        on nvl(a.meas_type,'') = nvl(b.meas_type,'') 
         and nvl(cast(a.meas_value as number(8)),0) >= nvl(cast(b.answer as number(8)),0)
-        where (a.meas_value not equals '' and a.meas_type in ('HEIGHT', 'WEIGHT',	'WAIST', 'BP_HIGH', 'BP_LWST', 'BLDS', 'TOT_CHOLE', 'TRIGLYCERIDE',	'HDL_CHOLE',		
-																	'LDL_CHOLE', 'HMG', 'OLIG_PH', 'CREATININE', 'SGOT_AST', 'SGPT_ALT', 'GAMMA_GTP'))
-;
-                                                                    
-select * from measurement where rownum <100;    
+	where (a.meas_value is not null and a.meas_type in ('GLY_CD', 'OLIG_OCCU_CD', 'OLIG_PROTE_CD'));
+
+/**************************************
+ 3.source_valueì˜ ê°’ì„ value_as_numberì—ë„ ìž…ë ¥
+***************************************/ 
+UPDATE CDM_ONE_MIL.MEASUREMENT
+SET value_as_number = measurement_source_value
+where measurement_source_value is not null; 
