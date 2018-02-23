@@ -1,0 +1,27 @@
+/*
+-- administrator account
+sqlplus / as sysdba
+*/
+
+/*
+-- create user account
+create user NHIS identified by NHIS;
+grant connect to NHIS;
+grant resource to NHIS;
+*/
+
+/*
+-- directory
+grant read, write on directory DIRECTORYNAME to NHIS;
+*/
+
+/*
+-- change tablespace
+alter user NHIS temporary tablespace TS_NHIS_TEMP;
+alter tablespace TS_NHIS add datafile 'D:\ORCL\ORCL\TS_NHIS_02.DBF' size 30G;
+*/
+
+/*
+--create directory
+create directory T120 as 'D:\NHIS_DATA\02.T120';
+*/
