@@ -1,0 +1,48 @@
+create table person_bak_20180227 as select * from PERSON;
+
+TRUNCATE TABLE PERSON DROP STORAGE; 
+
+INSERT INTO PERSON
+SELECT   A.person_id					as person_id 
+		,case when A.sex=1 then 8507 when A.sex=2 then 8532 end as gender_concept_id 
+		,B.STND_Y-AGE_FROM              as year_of_birth  
+		,null 							as month_of_birth
+		,null 							as day_of_birth
+		,null 							as time_of_birth
+		,38003585 						as race_concept_id --인종
+		,38003564 						as ethnicity_concept_id --민족성
+		,A.SGG							as location_id 
+		,NULL							as provider_id 
+		,NULL							as care_site_id 
+		,A.PERSON_ID					as person_source_value 
+		,A.SEX							as gender_source_value 
+		,NULL							as gender_source_concept_id
+		,NULL							as race_source_value 
+		,NULL							as race_source_concept_id
+		,NULL							as ethnicity_source_value 
+		,NULL							as ethnicity_source_concept_id	
+   FROM (SELECT X.*, ROW_NUMBER() OVER (PARTITION BY PERSON_ID ORDER BY STND_Y DESC) RN FROM NHIS.NHIS_JK X) A
+   JOIN (SELECT X.*, ROW_NUMBER() OVER (PARTITION BY PERSON_ID ORDER BY STND_Y ASC ) RN FROM NHIS.NHIS_JK X) B ON A.PERSON_ID=B.PERSON_ID AND A.RN=1 AND B.RN=1 
+   JOIN (SELECT 0	AGE_GROUP, 0	AGE_FROM , 0   AGE_TO FROM DUAL UNION ALL
+		 SELECT 1	AGE_GROUP, 1	AGE_FROM , 4   AGE_TO FROM DUAL UNION ALL
+		 SELECT 2	AGE_GROUP, 5	AGE_FROM , 9   AGE_TO FROM DUAL UNION ALL
+		 SELECT 3	AGE_GROUP, 10	AGE_FROM , 14  AGE_TO FROM DUAL UNION ALL
+		 SELECT 4	AGE_GROUP, 15	AGE_FROM , 19  AGE_TO FROM DUAL UNION ALL
+		 SELECT 5	AGE_GROUP, 20	AGE_FROM , 24  AGE_TO FROM DUAL UNION ALL
+		 SELECT 6	AGE_GROUP, 25	AGE_FROM , 29  AGE_TO FROM DUAL UNION ALL
+		 SELECT 7	AGE_GROUP, 30	AGE_FROM , 34  AGE_TO FROM DUAL UNION ALL
+		 SELECT 8	AGE_GROUP, 35	AGE_FROM , 39  AGE_TO FROM DUAL UNION ALL
+		 SELECT 9	AGE_GROUP, 40	AGE_FROM , 44  AGE_TO FROM DUAL UNION ALL
+		 SELECT 10 	AGE_GROUP, 45	AGE_FROM , 49  AGE_TO FROM DUAL UNION ALL
+		 SELECT 11 	AGE_GROUP, 50	AGE_FROM , 54  AGE_TO FROM DUAL UNION ALL
+		 SELECT 12 	AGE_GROUP, 55	AGE_FROM , 59  AGE_TO FROM DUAL UNION ALL
+		 SELECT 13 	AGE_GROUP, 60	AGE_FROM , 64  AGE_TO FROM DUAL UNION ALL
+		 SELECT 14 	AGE_GROUP, 65	AGE_FROM , 69  AGE_TO FROM DUAL UNION ALL
+		 SELECT 15 	AGE_GROUP, 70	AGE_FROM , 74  AGE_TO FROM DUAL UNION ALL
+		 SELECT 16 	AGE_GROUP, 75	AGE_FROM , 79  AGE_TO FROM DUAL UNION ALL
+		 SELECT 17 	AGE_GROUP, 80	AGE_FROM , 84  AGE_TO FROM DUAL UNION ALL
+		 SELECT 18 	AGE_GROUP, 85   AGE_FROM , 90  AGE_TO FROM DUAL
+		) C ON B.AGE_GROUP=C.AGE_GROUP           
+        ;
+           
+commit;
