@@ -44,3 +44,30 @@ select PERSON_ID,KEY_SEQ,YKIHO_ID,RECU_FR_DT,FORM_CD,DSBJT_CD,MAIN_SICK,SUB_SICK
 commit;
 
 --커밋 완료.
+
+insert into VISIT_OCCURRENCE (
+	visit_occurrence_id, person_id, visit_concept_id, visit_start_date, visit_start_datetime,
+	visit_end_date, visit_end_datetime, visit_type_concept_id, provider_id, care_site_id,
+	visit_source_value, visit_source_concept_id
+)
+select 
+	a.master_seq as visit_occurrence_id,
+	a.person_id as person_id,
+	9202 as visit_concept_id,
+	TO_DATE(a.hchk_year||'0101','yyyymmdd') as visit_start_date, --cast(CONVERT(VARCHAR, a.hchk_year+'0101', 23)as date) as visit_start_date,
+	null as visit_start_time,
+	TO_DATE(a.hchk_year||'0101','yyyymmdd')  as visit_end_date,--cast(CONVERT(VARCHAR, a.hchk_year+'0101', 23)as date) as visit_end_date,
+	null as visit_end_time,
+	44818517 as visit_type_concept_id,
+	null as provider_id,
+	null as care_site_id,
+	a.master_seq as visit_source_value,
+	null as visit_source_concept_id
+from NHIS.NHIS_GJ a 
+;
+
+--2,210,067개 행 이(가) 삽입되었습니다.
+
+commit;
+
+--커밋 완료.
