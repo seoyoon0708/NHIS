@@ -5,7 +5,7 @@ TRUNCATE TABLE PERSON DROP STORAGE;
 INSERT INTO PERSON
 SELECT   A.person_id					as person_id 
 		,case when A.sex=1 then 8507 when A.sex=2 then 8532 end as gender_concept_id 
-		,B.STND_Y-AGE_FROM              as year_of_birth  
+		,B.STND_Y-AGE_FROM              			as year_of_birth  
 		,null 							as month_of_birth
 		,null 							as day_of_birth
 		,null 							as time_of_birth
@@ -14,7 +14,7 @@ SELECT   A.person_id					as person_id
 		,A.SGG							as location_id 
 		,NULL							as provider_id 
 		,NULL							as care_site_id 
-		,A.PERSON_ID					as person_source_value 
+		,A.PERSON_ID						as person_source_value 
 		,A.SEX							as gender_source_value 
 		,NULL							as gender_source_concept_id
 		,NULL							as race_source_value 
