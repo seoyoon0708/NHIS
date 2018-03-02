@@ -177,7 +177,7 @@ INSERT INTO CDM_ONE_MIL.MEASUREMENT (measurement_id, person_id, measurement_conc
 			from NHIS.GJ_VERTICAL) a
 		JOIN measurement_mapping b 
         on nvl(a.meas_type,'') = nvl(b.meas_type,'') 
-        and nvl(cast(a.meas_value as number(8)),0) >= nvl(cast(b.answer as number(8)),0)
+        and nvl(cast(a.meas_value as number(8)),0) = nvl(cast(b.answer as number(8)),0)
 	where (a.meas_value is not null and a.meas_type in ('GLY_CD', 'OLIG_OCCU_CD', 'OLIG_PROTE_CD'));
 
 /**************************************
