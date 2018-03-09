@@ -28,6 +28,7 @@
 /**************************************
  1. condition_era 테이블 생성
 ***************************************/ 
+/*
 CREATE TABLE CDM_ONE_MIL.CONDITION_ERA  (
      condition_era_id					INTEGER	    NOT NULL , 
      person_id							INTEGER     NOT NULL ,
@@ -36,7 +37,8 @@ CREATE TABLE CDM_ONE_MIL.CONDITION_ERA  (
      condition_era_end_date				DATE 	  NOT NULL ,
      condition_occurrence_count			INTEGER			NULL 
 ); 
-
+*/
+truncate table CdM_ONE_MIL.CONDITION_ERA;
 	 
 /**************************************
  2. 1단계: 필요 데이터 조회
