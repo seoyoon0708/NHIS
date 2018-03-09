@@ -127,3 +127,5 @@ FROM cteConditionEnds
 GROUP BY person_id, condition_concept_id, era_end_date
  ) x
 ;
+
+commit;
