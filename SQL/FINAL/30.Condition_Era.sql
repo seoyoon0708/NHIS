@@ -129,3 +129,4 @@ GROUP BY person_id, condition_concept_id, era_end_date
 ;
 
 commit;
+--161,681,218 개 행이 삽입되었습니다.
