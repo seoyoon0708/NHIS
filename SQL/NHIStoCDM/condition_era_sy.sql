@@ -115,8 +115,9 @@ GROUP BY
  3. 2단계: condition_era에 데이터 입력
 ***************************************/ 
 
-INSERT INTO CDM_ONE_MIL.condition_era (person_id, condition_concept_id, condition_era_start_date, condition_era_end_date, condition_occurrence_count)
-SELECT
+INSERT INTO CDM_ONE_MIL.condition_era (condition_era_id, person_id, condition_concept_id, condition_era_start_date, condition_era_end_date, condition_occurrence_count)
+SELECT rownum, x.* from 
+( select 
 	person_id
 	, condition_concept_id
 	, MIN(condition_start_date) AS condition_era_start_date
@@ -124,5 +125,5 @@ SELECT
 	, COUNT(*) AS condition_occurrence_count
 FROM cteConditionEnds
 GROUP BY person_id, condition_concept_id, era_end_date
-ORDER BY person_id, condition_concept_id
+ ) x
 ;
