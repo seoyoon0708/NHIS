@@ -1,18 +1,25 @@
+/**************************************
+ 2. 1단계: 필요 데이터 조회
+***************************************/ 
+--------------------------------------------#cteDrugPreTarget 
+drop table cteDrugPreTarget;
+
 create table cteDrugPreTarget
 as
-SELECT /*+ordered*/
-	d.drug_exposure_id
+SELECT 	d.drug_exposure_id
 	, d.person_id
-	, ca.ancestor_concept_id AS ingredient_concept_id
+	, c.concept_id AS ingredient_concept_id
 	, d.drug_exposure_start_date AS drug_exposure_start_date
 	, d.days_supply AS days_supply
 	, COALESCE(d.drug_exposure_end_date, d.drug_exposure_start_date+d.days_supply, drug_exposure_start_date+1) AS drug_exposure_end_date
- FROM concept c 
- JOIN concept_ancestor ca on ca.descendant_concept_id = c.concept_id and c.vocabulary_id = 'RxNorm' and c.concept_class_ID = 'Ingredient'
- JOIN drug_exposure d on TO_CHAR(d.drug_concept_id)=c.concept_code ;
-  
+ FROM drug_exposure d
+JOIN concept_ancestor ca ON ca.descendant_concept_id = d.drug_concept_id
+JOIN concept c ON ca.ancestor_concept_id = c.concept_id
+WHERE c.vocabulary_id = 'RxNorm'
+AND c.concept_class_ID = 'Ingredient'
+;
  
-
+drop table cteDrugTarget1;
 
 --------------------------------------------#cteDrugTarget1
 create table cteDrugTarget1
@@ -73,6 +80,7 @@ WHERE (2 * e.start_ordinal) - e.overall_ord = 0;
 	
 --------------------------------------------#cteDrugExposureEnds1
 CREATE table cteDrugExposureEnds1
+AS
 SELECT 
 	   dt.person_id
 	   , dt.ingredient_concept_id as drug_concept_id
@@ -80,13 +88,10 @@ SELECT
 	   , MIN(e.end_date) AS drug_era_end_date
 	   , dt.days_of_exposure AS days_of_exposure
  FROM cteDrugTarget1 dt
-						JOIN cteEndDates1 e 
-						ON dt.person_id = e.person_id AND 
-						dt.ingredient_concept_id = e.ingredient_concept_id 
-						AND e.end_date >= dt.drug_exposure_start_date
+ JOIN cteEndDates1 e ON dt.person_id = e.person_id AND dt.ingredient_concept_id = e.ingredient_concept_id AND e.end_date >= dt.drug_exposure_start_date
 GROUP BY 
-		  dt.drug_exposure_id
-		  , dt.person_id
+        dt.drug_exposure_id
+	  , dt.person_id
 	  , dt.ingredient_concept_id
 	  , dt.drug_exposure_start_date
 	  , dt.days_of_exposure;
@@ -97,17 +102,20 @@ GROUP BY
 ***************************************/ 
 
 INSERT INTO drug_era (drug_era_id,person_id, drug_concept_id, drug_era_start_date, drug_era_end_date, drug_exposure_count, gap_days)
+select rownum as drug_dra_id,x.*
+from (
 SELECT
-     rownum drug_era_id
-	,person_id
+	  person_id
 	, drug_concept_id
 	, MIN(drug_exposure_start_date) AS drug_era_start_date
 	, drug_era_end_date
 	, COUNT(*) AS drug_exposure_count
-	, DATEDIFF(DAY, MIN(drug_exposure_start_date),drug_era_end_date) -SUM(days_of_exposure) AS gap_days
+	, drug_era_end_date-MIN(drug_exposure_start_date) -SUM(days_of_exposure) AS gap_days
 	/*, EXTRACT(EPOCH FROM (drug_era_end_date - MIN(drug_exposure_start_date)) - SUM(days_of_exposure))/86400 AS gap_day
 			  ---dividing by 86400 puts the integer in the "units" of days.
 			  ---There are no actual units on this, it is just an integer, but we want it to represent days and dividing by 86400 does that.*/
 FROM cteDrugExposureEnds1
 GROUP BY person_id, drug_concept_id, drug_era_end_date
-ORDER BY person_id, drug_concept_id;
+) X;
+
+commit;
