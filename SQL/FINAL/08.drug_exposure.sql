@@ -137,19 +137,19 @@ FROM
 			case when x.dd_exec_freq is not null and REGEXP_INSTR(x.dd_exec_freq,'[^0-9]')=0 and TO_NUMBER(x.dd_exec_freq) > '0' then TO_NUMBER(x.dd_exec_freq) else 1 end as dd_exec_freq,
 			x.person_id, X.RXNORM_CONCEPT_ID as concept_id 	
        FROM (
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2002 a inner join NHIS.NHID_GY30_T1_2002 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE 
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2002 a inner join NHIS.NHID_GY60_T1_2002 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE 
 UNION ALL
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2003 a inner join NHIS.NHID_GY30_T1_2003 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2004 a inner join NHIS.NHID_GY30_T1_2004 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2005 a inner join NHIS.NHID_GY30_T1_2005 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2006 a inner join NHIS.NHID_GY30_T1_2006 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2007 a inner join NHIS.NHID_GY30_T1_2007 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2008 a inner join NHIS.NHID_GY30_T1_2008 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2009 a inner join NHIS.NHID_GY30_T1_2009 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2010 a inner join NHIS.NHID_GY30_T1_2010 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2011 a inner join NHIS.NHID_GY30_T1_2011 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2012 a inner join NHIS.NHID_GY30_T1_2012 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
-SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2013 a inner join NHIS.NHID_GY30_T1_2013 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2003 a inner join NHIS.NHID_GY60_T1_2003 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2004 a inner join NHIS.NHID_GY60_T1_2004 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2005 a inner join NHIS.NHID_GY60_T1_2005 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2006 a inner join NHIS.NHID_GY60_T1_2006 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2007 a inner join NHIS.NHID_GY60_T1_2007 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2008 a inner join NHIS.NHID_GY60_T1_2008 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2009 a inner join NHIS.NHID_GY60_T1_2009 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2010 a inner join NHIS.NHID_GY60_T1_2010 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2011 a inner join NHIS.NHID_GY60_T1_2011 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2012 a inner join NHIS.NHID_GY60_T1_2012 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE UNION ALL
+SELECT a.PERSON_ID,B.*,C.*,D.* FROM NHIS.NHID_GY20_T1_2013 a inner join NHIS.NHID_GY60_T1_2013 b on a.key_seq=b.key_seq inner join TS_MAP_EDITOATC c on b.DIV_CD=c.EDI_CODE inner join TS_MAP_ATCTORXNORM D on c.ATC_CODE=D.ATC_CODE
 ) x
       ) a
 ;
