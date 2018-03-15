@@ -20,7 +20,7 @@ select A.*, row_number() over (partition by product_code order by ATC_CODE asc) 
 
 truncate table DRUG_EXPOSURE;
 
-insert into DRUG_EXPOSURE 
+insert /*+append*/ into DRUG_EXPOSURE 
 (drug_exposure_id
 , person_id
 , drug_concept_id
