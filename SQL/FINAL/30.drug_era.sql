@@ -1,6 +1,44 @@
+create table cteDrugPreTarget_rev
+as  SELECT 	d.drug_exposure_id
+			, d.person_id
+			, c.concept_id AS ingredient_concept_id
+			, d.drug_exposure_start_date AS drug_exposure_start_date
+			, d.days_supply AS days_supply
+			, COALESCE(d.drug_exposure_end_date, d.drug_exposure_start_date+d.days_supply, drug_exposure_start_date+1) AS drug_exposure_end_date
+			, lead(d.drug_exposure_start_date) partition by (d.person_id,c.concept_id order by d.drug_exposure_start_date) as next_start_date
+			, CASE WHEN COALESCE(d.drug_exposure_end_date, d.drug_exposure_start_date+d.days_supply, drug_exposure_start_date+1)-
+						lead(d.drug_exposure_start_date) over (partition by d.person_id,c.concept_id order by d.drug_exposure_start_date)>30 then 1 else 0
+			  END AS NEW_ERA_YN
+		 FROM drug_exposure d
+		JOIN concept_ancestor ca ON ca.descendant_concept_id = d.drug_concept_id
+		JOIN concept c ON ca.ancestor_concept_id = c.concept_id
+		WHERE c.vocabulary_id = 'RxNorm'
+		AND c.concept_class_ID = 'Ingredient'		
+;
+
+
+INSERT INTO drug_era (drug_era_id,person_id, drug_concept_id, drug_era_start_date, drug_era_end_date, drug_exposure_count, gap_days)
+select rownum as drug_dra_id,x.*
+from (SELECT
+			  person_id
+			, drug_concept_id
+			, MIN(drug_exposure_start_date) AS drug_era_start_date
+			, MAX(drug_exposure_end_date)   AS drug_era_end_date
+			, COUNT(*) 						AS drug_exposure_count
+			, SUM(GAP) AS gap_days
+		FROM (SELECT a.*
+					,case when next_start_date>drug_exposure_end_date THEN next_start_date-drug_exposure_end_date ELSE 0 END as GAP
+					,sum(NEW_ERA_YN) over (partition by person_id,concept_id order by drug_exposure_start_date rows between unbounded preceding and current row) ERA_NO	   
+			   from cteDrugPreTarget_rev a) b 
+		GROUP BY person_id,drug_concept_id,ERA_NO
+      ) x;
+
+commit;
+
+
 /**************************************
  2. 1단계: 필요 데이터 조회
-***************************************/ 
+***************************************
 --------------------------------------------#cteDrugPreTarget 
 drop table cteDrugPreTarget;
 
@@ -119,3 +157,4 @@ GROUP BY person_id, drug_concept_id, drug_era_end_date
 ) X;
 
 commit;
+*/
