@@ -16,7 +16,17 @@ SELECT * FROM NHID_YK_2013 ;
 
 GRANT SELECT ON NHIS_YK TO CDM_ONE_MIL;
 
-TRUNCATE TABLE CARE_SITE;
+drop table CARE_SITE;
+
+Create table CARE_SITE (
+	care_site_id 	NUMBER,
+	care_site_name	varchar2(255),
+	place_of_service_concept_id	NUMBER,
+	location_id	NUMBER,
+	care_site_source_value	varchar2(50),
+	place_of_service_source_value	varchar2(50)
+);
+
 
 INSERT INTO CARE_SITE
 SELECT a.ykiho_id,
