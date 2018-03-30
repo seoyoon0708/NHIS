@@ -41,7 +41,7 @@ from (
 --	and TO_DATE(c.recu_fr_dt, 'YYYYMMDD') between d.observation_period_start_date and d.observation_period_end_date
 	)  m, --추가
 	 TS_MAP_ICD2SNOMED n
-where m.sick_sym=n.SNOMED_CODE	
+where m.sick_sym=n.ICD_CODE
 ;
 
 commit;
