@@ -1,6 +1,7 @@
 truncate table condition_occurrence;
 
 
+
 insert /*+append*/ into condition_occurrence(
 	condition_occurrence_id, person_id, condition_concept_id, condition_start_date, condition_end_date, 
 	condition_type_concept_id, stop_reason, provider_id, visit_occurrence_id, condition_source_value, condition_source_concept_id
@@ -16,14 +17,15 @@ select
 	m.sick_order as condition_type_concept_id,
 	null as stop_reason,
 	null as provider_id,
-	m.visit_occurrence_id,
+	m.key_seq as visit_occurrence_id,
 	m.sick_sym as condition_source_value,
-	null as condition_source_concept_id 
+	n.ICD_CONCEPT_ID as condition_source_concept_id 
 from (
 	select
 		--a.master_seq, a.person_id, a.key_seq, a.seq_no,
+        b.key_seq,
         b.person_id,
-        b.visit_occurrence_id,
+        --b.visit_occurrence_id,
 		b.recu_fr_dt,
 		case when b.form_cd in ('02', '04', '06', '07', '10', '12') then TO_DATE(b.recu_fr_dt, 'YYYYMMDD')+b.vscn-1
 			when b.form_cd in ('03', '05', '08', '09', '11', '13', '20', '21', 'ZZ') and b.in_pat_cors_type in ('11', '21', '31') then TO_DATE(b.recu_fr_dt, 'YYYYMMDD')+b.vscn-1 
@@ -35,13 +37,19 @@ from (
 			else '45756845' --third condition
 		end as sick_order,
 		case when b.sub_sick=c.sick_sym then 'Y' else 'N' end as sub_sick_yn
-	from NHIS.NHIS_20T b, NHIS.NHIS_40T c
+	from NHIS.NHID_GY20_T1_2002 b, NHIS.NHID_GY40_T1_2002 c
 --		observation_period d --추가
 	where b.key_seq=c.key_seq	
 --	and TO_DATE(c.recu_fr_dt, 'YYYYMMDD') between d.observation_period_start_date and d.observation_period_end_date
 	)  m, --추가
 	 TS_MAP_ICD2SNOMED n
-where m.sick_sym=n.ICD_CODE
+where m.sick_sym=n.ICD_CODE	
 ;
 
+
 commit;
+
+
+
+
+
