@@ -2,16 +2,16 @@ create table condition_occurrence_wo_rownum
 as
 select 
 	--ROWNUM condition_occurrence_id,
-	m.person_id as person_id,
-	nvl(n.SNOMED_CODE,0) as condition_concept_id,
-	TO_DATE(m.recu_fr_dt, 'YYYYMMDD') as condition_start_date,
-	m.visit_end_date as condition_end_date,
-	m.sick_order as condition_type_concept_id,
-	cast(null as varchar2(2000)) as stop_reason,
-	cast(null as varchar2(2000)) as provider_id,
-	m.key_seq as visit_occurrence_id,
-	m.sick_sym as condition_source_value,
-	n.ICD_CONCEPT_ID as condition_source_concept_id 
+	m.person_id 				as person_id,
+	nvl(n.SNOMED_CODE, 0) 			as condition_concept_id,
+	TO_DATE(m.recu_fr_dt, 'YYYYMMDD') 	as condition_start_date,
+	m.visit_end_date 			as condition_end_date,
+	m.sick_order 				as condition_type_concept_id,
+	cast(null as varchar2(2000)) 		as stop_reason,
+	cast(null as varchar2(2000)) 		as provider_id,
+	m.key_seq 				as visit_occurrence_id,
+	m.sick_sym 				as condition_source_value,
+	n.ICD_CONCEPT_ID 			as condition_source_concept_id 
 from (
 	select
         a.key_seq,
@@ -41,7 +41,7 @@ from (
 		  select b.PERSON_ID,b.KEY_SEQ,b.RECU_FR_DT,b.FORM_CD,b.MAIN_SICK,b.SUB_SICK,b.IN_PAT_CORS_TYPE,b.VSCN,c.sick_sym from NHIS.NHID_GY20_T1_2013 b inner join NHIS.NHID_GY40_T1_2013 c on b.key_seq=c.key_seq 
 	     ) a
 	)  m
-	left outer join TS_MAP_ICD2SNOMED n on m.sick_sym=n.ICD_CODE
+	left outer join TS_MAP_ICD2SNOMED n on m.sick_sym=n.ICD_CODE 
 ;
 
 CREATE SEQUENCE cond_occurrence_id
