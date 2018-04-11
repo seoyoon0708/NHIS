@@ -1,3 +1,5 @@
+drop table condition_occurrence_wo_rownum;
+
 create table condition_occurrence_wo_rownum
 as
 select 
@@ -43,6 +45,8 @@ from (
 	)  m
 	left outer join TS_MAP_ICD2SNOMED n on m.sick_sym=n.ICD_CODE 
 ;
+
+drop SEQUENCE cond_occurrence_id;
 
 CREATE SEQUENCE cond_occurrence_id
 START WITH 4000000000
