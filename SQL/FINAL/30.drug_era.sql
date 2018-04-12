@@ -5,7 +5,7 @@ as  SELECT 	d.drug_exposure_id
 			, d.drug_exposure_start_date AS drug_exposure_start_date
 			, d.days_supply AS days_supply
 			, COALESCE(d.drug_exposure_end_date, d.drug_exposure_start_date+d.days_supply, drug_exposure_start_date+1) AS drug_exposure_end_date
-			, lead(d.drug_exposure_start_date) partition by (d.person_id,c.concept_id order by d.drug_exposure_start_date) as next_start_date
+			, lead(d.drug_exposure_start_date) over (partition by d.person_id,c.concept_id order by d.drug_exposure_start_date) as next_start_date
 			, CASE WHEN COALESCE(d.drug_exposure_end_date, d.drug_exposure_start_date+d.days_supply, drug_exposure_start_date+1)-
 						lead(d.drug_exposure_start_date) over (partition by d.person_id,c.concept_id order by d.drug_exposure_start_date)>30 then 1 else 0
 			  END AS NEW_ERA_YN
