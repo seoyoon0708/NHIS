@@ -17,23 +17,21 @@ as  SELECT 	d.drug_exposure_id
 ;
 
 
-INSERT INTO drug_era (drug_era_id,person_id, drug_concept_id, drug_era_start_date, drug_era_end_date, drug_exposure_count, gap_days)
-select rownum as drug_dra_id,x.*
+create table drug_era_mini (drug_era_id,person_id, drug_concept_id, drug_era_start_date, drug_era_end_date, drug_exposure_count, gap_days) as
+select rownum as drug_era_id,x.*
 from (SELECT
 			  person_id
-			, drug_concept_id
+			, ingredient_concept_id as drug_concept_id
 			, MIN(drug_exposure_start_date) AS drug_era_start_date
 			, MAX(drug_exposure_end_date)   AS drug_era_end_date
 			, COUNT(*) 						AS drug_exposure_count
 			, SUM(GAP) AS gap_days
 		FROM (SELECT a.*
 					,case when next_start_date>drug_exposure_end_date THEN next_start_date-drug_exposure_end_date ELSE 0 END as GAP
-					,sum(NEW_ERA_YN) over (partition by person_id,concept_id order by drug_exposure_start_date rows between unbounded preceding and current row) ERA_NO	   
+					,sum(NEW_ERA_YN) over (partition by person_id,ingredient_concept_id order by drug_exposure_start_date rows between unbounded preceding and current row) ERA_NO	   
 			   from cteDrugPreTarget_rev a) b 
-		GROUP BY person_id,drug_concept_id,ERA_NO
+		GROUP BY person_id,ingredient_concept_id,ERA_NO
       ) x;
-
-commit;
 
 
 /**************************************
